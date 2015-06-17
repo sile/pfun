@@ -58,11 +58,12 @@ is_portable_fun(_)       -> false.
 %%
 %% -compile({parse_transform, pfun_transform}).  % parse_transformの設定が必須
 %%
-%% -export([hello_fun/0]).
+%% -export([hello_fun/1]).
 %%
-%% -spec hello_fun() -> fun (() -> hello).
-%% hello_fun() ->
-%%   PFun = pfun:lambda(fun () -> hello end, []),
+%% -spec hello_fun(atom()) -> fun (() -> {hello, atom()}).
+%% hello_fun(Name) ->
+%%   PFun = pfun:lambda(fun () -> {hello, Name} end,
+%%                      [{'Name', Name}]),  % 現バージョンでは自由変数の束縛は手動で行う必要がある
 %%   pfun:to_raw(PFun).
 %% '''
 -spec lambda(function(), bindings()) -> function().
@@ -103,7 +104,15 @@ apply(Pfun, Args) ->
 
 %% @doc `Pfun'を通常のErlang関数(`function'型)に変換する
 %%
-%% NOTE: 変換後でも同じバージョンの`erl_eval'モジュールを使用しているノード間では可搬性が維持される
+%% {@link apply/2}関数は、内部的には実行の度に本関数を呼び出しているので、
+%% 本関数で一度`function'型に変換し、それを持ち回した方が性能的には有利。
+%%
+%% また、通常のErlang関数と同様に扱うことができるので、利便性もより高い。
+%%
+%% その分、可搬性は(`portable_fun'型に比べて)若干損なわれるので注意が必要。<br />
+%% ただし、変換後でも同じバージョンの`erl_eval'モジュールを使用しているノード間では可搬性が維持されるので、
+%% 単一ノード内での使用や、異なるバージョンのErlang/OTPの混在の無い環境での使用であれば、
+%% これが問題となることはほぼないものと思われる。
 %%
 %% ```
 %% > F0 = pfun:bind(erlang, '+', 2, [4]).
@@ -111,7 +120,7 @@ apply(Pfun, Args) ->
 %% > true = is_function(F1, 1).
 %% > 1234 = F1(1230).
 %% '''
--spec to_raw(Pfun:: portable_fun()) -> function().
+-spec to_raw(Pfun :: portable_fun()) -> function().
 to_raw(#pfun{expr = Expr, bindings = Bindings}) ->
     erl_eval:expr(Expr, Bindings, none, none, value).
 

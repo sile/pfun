@@ -1,6 +1,8 @@
 %% Copyright (c) 2015, Takeru Ohta <phjgt308@gmail.com>
 %%
-%% @doc Parse transform module for `pfun'
+%% @doc pfun用のparse_transformモジュール
+%%
+%% コンパイルオプションに`{parse_transform, pfun_transform}'と指定することで有効になる
 -module(pfun_transform).
 
 %%----------------------------------------------------------------------------------------------------------------------
