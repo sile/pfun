@@ -76,7 +76,7 @@ __Portable Functions__の略
 ```erlang
 %%
 %% 無名関数を可搬な関数オブジェクトに変換する。
-%% `pfun:bind/2`とは異なるシェル上から直接実行することは出来ない。
+%% `pfun:bind/2`とは異なりシェル上から直接実行することは出来ない。
 %% (parse_transformの機能を使用しているため)
 %%
 -module(example).
